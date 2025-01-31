@@ -152,16 +152,6 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
                         if (!elem1 || !elem2)
                             continue;
                         const { verticalSpacing } = getSpacingBetweenElements(elem1, elem2, element.name, children);
-                        // if (horizontalSpacing.actual !== horizontalSpacing.expected) {
-                        //     frameIssues.groupedIssues.push({
-                        //         element1: elem1,
-                        //         element2: elem2,
-                        //         spacing: horizontalSpacing.actual,
-                        //         expected: horizontalSpacing.expected,
-                        //         type: 'spacing',
-                        //         direction: 'horizontal',
-                        //     });
-                        // }
                         if (verticalSpacing.actual !== verticalSpacing.expected) {
                             frameIssues.groupedIssues.push({
                                 element1: elem1,
@@ -297,14 +287,10 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
         };
     }
     function getSpacingBetweenElements(elem1, elem2, parentName, children) {
-        // const expectedHorizontalSpacing = 16;
         let expectedVerticalSpacing = 16;
         if (parentName === 'main') {
             if (elem1.name === 'Breadcrumb' && elem2.name === 'main__heading') {
                 expectedVerticalSpacing = 16;
-                // } 
-                // else if (elem1.name === 'main__heading' && elem2.name === 'main__instructional') {
-                //     expectedVerticalSpacing = 4; 
             }
             else if (elem1.name === 'main__instructional' && elem2.name === 'Tabs') {
                 expectedVerticalSpacing = 16;
@@ -316,10 +302,8 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
                 expectedVerticalSpacing = 24;
             }
         }
-        // const horizontalSpacing = Math.abs(elem2.x - (elem1.x + elem1.width));
         const verticalSpacing = Math.abs(elem2.y - (elem1.y + elem1.height));
         return {
-            // horizontalSpacing: { actual: horizontalSpacing, expected: expectedHorizontalSpacing },
             verticalSpacing: { actual: verticalSpacing, expected: expectedVerticalSpacing },
         };
     }

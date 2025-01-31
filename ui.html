@@ -11,12 +11,10 @@
       padding: 10px;
       background-color: #f5f5f5;
     }
-
     h2 {
       margin: 0 0 10px;
       font-size: 18px;
     }
-
     button {
       background-color: #4CAF50;
       color: white;
@@ -26,21 +24,38 @@
       cursor: pointer;
       font-size: 14px;
     }
-
     button:hover {
       background-color: #45a049;
     }
-
-    .issues-container {
-      margin-top: 20px;
-      max-height: 500px;
-      overflow-y: auto;
-      background: white;
-      padding: 10px;
-      border-radius: 5px;
-      border: 1px solid #ddd;
+    .tabs {
+      display: flex;
+      margin-top: 10px;
+      border-bottom: 2px solid #ddd;
     }
-
+    .tab {
+      padding: 10px 15px;
+      cursor: pointer;
+      border: 1px solid #ddd;
+      border-bottom: none;
+      background: #f9f9f9;
+    }
+    .tab.active {
+      background: white;
+      font-weight: bold;
+    }
+    .tab-count {
+      background: red;
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      margin-left: 5px;
+    }
+    .issues-container {
+      display: none;
+      padding: 10px;
+      border: 1px solid #ddd;
+      background: white;
+    }
     .issue-item {
       padding: 10px;
       margin-bottom: 10px;
@@ -49,40 +64,23 @@
       background-color: #f9f9f9;
       cursor: pointer;
     }
-
     .issue-item:hover {
       background-color: #e6f7ff;
       border-color: #91d5ff;
-    }
-    #addLandmark {
-      background-color: #FFEB3B; /* Yellow background for landmark button */
-      color: black;
-      margin-top: 10px;
-    }
-
-    #addLandmark:hover {
-      background-color: #FFDD00; /* Darker yellow on hover */
-    }
-    
-    #plugin-logo {
-      width: 100px; /* Adjust width as needed */
-      height: auto;
-      display: block;
-      margin: 0 auto;
     }
   </style>
 </head>
 <body>
   <h2>Design Spacing Review</h2>
-  <div id="logo-container">
-    <img src="./assets/img/alloy__logo.png" alt="Plugin Logo" id="plugin-logo" />
-  </div>
   <button id="runReview">Run Review</button>
-  <button id="addLandmark" style="margin-top: 20px;">Add Accessibility Landmark</button>
-
-  <div id="issuesContainer" class="issues-container" style="display: none;"></div>
-  <div id="successMessage" class="success-message" style="display: none;">No issues found! 🎉</div>
-
+  <button id="addLandmark">Add Accessibility Landmark</button>
+  <div class="tabs">
+    <div class="tab" data-type="padding">Padding <span class="tab-count" id="padding-count">0</span></div>
+    <div class="tab" data-type="spacing">Spacing <span class="tab-count" id="spacing-count">0</span></div>
+    <div class="tab" data-type="font-token">Font Token <span class="tab-count" id="font-token-count">0</span></div>
+    <div class="tab" data-type="color-token">Color Token <span class="tab-count" id="color-token-count">0</span></div>
+  </div>
+  <div id="issuesContainer"></div>
   <script>
     document.getElementById('runReview').addEventListener('click', () => {
       parent.postMessage({ pluginMessage: { type: 'run-review' } }, '*');
@@ -94,64 +92,53 @@
 
     window.onmessage = (event) => {
       const message = event.data.pluginMessage;
-
+      if (message.type !== 'show-groupedIssues') return;
+      
+      const groupedIssues = message.grouped;
       const issuesContainer = document.getElementById('issuesContainer');
-      const successMessage = document.getElementById('successMessage');
-
-      // Clear existing messages
-      issuesContainer.style.display = 'none';
-      successMessage.style.display = 'none';
       issuesContainer.innerHTML = '';
+      
+      const issueTypes = { padding: [], spacing: [], 'font-token': [], 'color-token': [] };
+      groupedIssues.forEach((frame) => {
+        frame.groupedIssues.forEach((issue) => {
+          issueTypes[issue.type]?.push(issue);
+        });
+      });
+      
+      Object.keys(issueTypes).forEach(type => {
+        document.getElementById(`${type}-count`).textContent = issueTypes[type].length;
+      });
+      
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function () {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          renderIssues(issueTypes[this.dataset.type]);
+        });
+      });
+      
+      function renderIssues(issues) {
+        issuesContainer.innerHTML = '';
+        issuesContainer.style.display = 'block';
 
-      if (message.type === 'show-groupedIssues') {
-        const groupedIssues = message.grouped;
+        issues.forEach((issue) => {
+          let issueDescription = '';
 
-        if (groupedIssues.length === 0) {
-          successMessage.style.display = 'block';
-        } else {
-          issuesContainer.style.display = 'block';
+          if (issue.type === 'padding') {
+            issueDescription = `Padding Issue in "${issue.elementName}": Expected ${issue.expected}px ${issue.direction} padding, but found ${issue.spacing}px.`;
+          } else if (issue.type === 'spacing') {
+            issueDescription = `Spacing Issue in "${issue.elementName}": Expected ${issue.expected}px ${issue.direction} spacing, but found ${issue.spacing}px.`;
+          } else if (issue.type === 'color-token') {
+            issueDescription = `Color Token Issue in "${issue.elementName}": Expected "${issue.expected}" for ${issue.property}, but found "${issue.actual}".`;
+          } else if (issue.type === 'font-token') {
+            issueDescription = `Font Token Issue in "${issue.elementName}": Expected "${issue.expected}", but found "${issue.actual}".`;
+          }
 
-          groupedIssues.forEach((frame) => {
-            const frameSection = document.createElement('div');
-
-            const frameTitle = document.createElement('div');
-            frameTitle.textContent = frame.frameName || 'Unnamed Frame';
-            frameSection.appendChild(frameTitle);
-
-            frame.groupedIssues.forEach((issue) => {
-              const issueItem = document.createElement('div');
-              issueItem.className = 'issue-item';
-
-              let issueDescription = '';
-              if (issue.type === 'padding') {
-                issueDescription = `Padding Issue in "${issue.elementName}": Expected ${issue.expected}px ${issue.direction} padding, but found ${issue.spacing}px.`;
-              } else if (issue.type === 'spacing') {
-                issueDescription = `Spacing Issue in "${issue.elementName}": Expected ${issue.expected}px ${issue.direction} spacing, but found ${issue.spacing}px.`;
-              } else if (issue.type === 'font-token') {
-                issueDescription = `Font Token Issue in "${issue.elementName}": Expected "${issue.expected}" for ${issue.property}, but found "${issue.actual}".`;
-              } else if (issue.type === 'color-token') {
-                issueDescription = `Color Token Issue in "${issue.elementName}": Expected "${issue.expected}" for ${issue.property}, but found "${issue.actual}".`;
-              } else {
-                issueDescription = `Unknown issue type: ${issue.type}`;
-              }
-
-              issueItem.innerHTML = issueDescription;
-
-              // Add hover events to send messages to the plugin
-              issueItem.addEventListener('mouseenter', () => {
-                parent.postMessage({ pluginMessage: { type: 'highlight-frame', frameId: issue.element.id } }, '*');
-              });
-
-              issueItem.addEventListener('mouseleave', () => {
-                parent.postMessage({ pluginMessage: { type: 'reset-highlight', frameId: issue.element.id } }, '*');
-              });
-
-              frameSection.appendChild(issueItem);
-            });
-
-            issuesContainer.appendChild(frameSection);
-          });
-        }
+          const issueItem = document.createElement('div');
+          issueItem.className = 'issue-item';
+          issueItem.textContent = issueDescription;
+          issuesContainer.appendChild(issueItem);
+        });
       }
     };
   </script>

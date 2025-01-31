@@ -15,7 +15,6 @@ figma.ui.onmessage = async (msg) => {
                 const { frameId } = msg;
         
                 try {
-                    
                     const node = await figma.getNodeByIdAsync(frameId);
         
                     if (node && 'fills' in node) {
@@ -179,17 +178,6 @@ figma.ui.onmessage = async (msg) => {
                     
                         const { verticalSpacing } = getSpacingBetweenElements(elem1, elem2, element.name, children);
                     
-                        // if (horizontalSpacing.actual !== horizontalSpacing.expected) {
-                        //     frameIssues.groupedIssues.push({
-                        //         element1: elem1,
-                        //         element2: elem2,
-                        //         spacing: horizontalSpacing.actual,
-                        //         expected: horizontalSpacing.expected,
-                        //         type: 'spacing',
-                        //         direction: 'horizontal',
-                        //     });
-                        // }
-                    
                         if (verticalSpacing.actual !== verticalSpacing.expected) {
                             frameIssues.groupedIssues.push({
                                 element1: elem1,
@@ -202,8 +190,6 @@ figma.ui.onmessage = async (msg) => {
                         }
                     }
                                  
-
-                
                 for (const child of children) {
                     if (child.type === 'TEXT' && child.name === 'main__heading') {
                         const textIssues = await checkTokens(child, expectedTextStyle, expectedColorStyle);
@@ -349,15 +335,11 @@ function calculatePaddings(frame: any, children: any[]) {
 
 
 function getSpacingBetweenElements(elem1: any, elem2: any, parentName: string, children: any[]) {
-    // const expectedHorizontalSpacing = 16;
     let expectedVerticalSpacing = 16;
 
     if (parentName === 'main') {
         if (elem1.name === 'Breadcrumb' && elem2.name === 'main__heading') {
             expectedVerticalSpacing = 16;
-        // } 
-        // else if (elem1.name === 'main__heading' && elem2.name === 'main__instructional') {
-        //     expectedVerticalSpacing = 4; 
         } else if (elem1.name === 'main__instructional' && elem2.name === 'Tabs') {
             expectedVerticalSpacing = 16;
         } else if (elem1.name === 'Tabs' && elem2.name === 'main__content') {
@@ -366,12 +348,9 @@ function getSpacingBetweenElements(elem1: any, elem2: any, parentName: string, c
             expectedVerticalSpacing = 24;
         }
     }
-
-    // const horizontalSpacing = Math.abs(elem2.x - (elem1.x + elem1.width));
     const verticalSpacing = Math.abs(elem2.y - (elem1.y + elem1.height));
 
     return {
-        // horizontalSpacing: { actual: horizontalSpacing, expected: expectedHorizontalSpacing },
         verticalSpacing: { actual: verticalSpacing, expected: expectedVerticalSpacing },
     };
 }
