@@ -79,68 +79,85 @@
     <div class="tab" data-type="spacing">Spacing <span class="tab-count" id="spacing-count">0</span></div>
     <div class="tab" data-type="font-token">Font Token <span class="tab-count" id="font-token-count">0</span></div>
     <div class="tab" data-type="color-token">Color Token <span class="tab-count" id="color-token-count">0</span></div>
-  </div>
-  <div id="issuesContainer"></div>
-  <script>
-    document.getElementById('runReview').addEventListener('click', () => {
-      parent.postMessage({ pluginMessage: { type: 'run-review' } }, '*');
-    });
+    <div class="tab" data-type="styling">Styling <span class="tab-count" id="styling-count">0</span></div> <!-- Added Styling Tab -->
+</div>
+<div id="issuesContainer"></div>
+<script>
+  document.getElementById('runReview').addEventListener('click', () => {
+    parent.postMessage({ pluginMessage: { type: 'run-review' } }, '*');
+  });
 
-    document.getElementById('addLandmark').addEventListener('click', () => {
-      parent.postMessage({ pluginMessage: { type: 'add-landmark' } }, '*');
-    });
+  document.getElementById('addLandmark').addEventListener('click', () => {
+    parent.postMessage({ pluginMessage: { type: 'add-landmark' } }, '*');
+  });
 
-    window.onmessage = (event) => {
-      const message = event.data.pluginMessage;
-      if (message.type !== 'show-groupedIssues') return;
-      
-      const groupedIssues = message.grouped;
-      const issuesContainer = document.getElementById('issuesContainer');
-      issuesContainer.innerHTML = '';
-      
-      const issueTypes = { padding: [], spacing: [], 'font-token': [], 'color-token': [] };
-      groupedIssues.forEach((frame) => {
-        frame.groupedIssues.forEach((issue) => {
-          issueTypes[issue.type]?.push(issue);
-        });
-      });
-      
-      Object.keys(issueTypes).forEach(type => {
-        document.getElementById(`${type}-count`).textContent = issueTypes[type].length;
-      });
-      
-      document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', function () {
-          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-          this.classList.add('active');
-          renderIssues(issueTypes[this.dataset.type]);
-        });
-      });
-      
-      function renderIssues(issues) {
-        issuesContainer.innerHTML = '';
-        issuesContainer.style.display = 'block';
+  window.onmessage = (event) => {
+    const message = event.data.pluginMessage;
+    if (message.type !== 'show-groupedIssues') return;
 
-        issues.forEach((issue) => {
-          let issueDescription = '';
+    const groupedIssues = message.grouped;
+    const issuesContainer = document.getElementById('issuesContainer');
+    issuesContainer.innerHTML = '';
 
-          if (issue.type === 'padding') {
-            issueDescription = `Padding Issue in "${issue.elementName}": Expected ${issue.expected}px ${issue.direction} padding, but found ${issue.spacing}px.`;
-          } else if (issue.type === 'spacing') {
-            issueDescription = `Spacing Issue in "${issue.elementName}": Expected ${issue.expected}px ${issue.direction} spacing, but found ${issue.spacing}px.`;
-          } else if (issue.type === 'color-token') {
-            issueDescription = `Color Token Issue in "${issue.elementName}": Expected "${issue.expected}" for ${issue.property}, but found "${issue.actual}".`;
-          } else if (issue.type === 'font-token') {
-            issueDescription = `Font Token Issue in "${issue.elementName}": Expected "${issue.expected}", but found "${issue.actual}".`;
-          }
-
-          const issueItem = document.createElement('div');
-          issueItem.className = 'issue-item';
-          issueItem.textContent = issueDescription;
-          issuesContainer.appendChild(issueItem);
-        });
-      }
+    const issueTypes = { 
+      padding: [], 
+      spacing: [], 
+      'font-token': [], 
+      'color-token': [],
+      styling: [] // Added styling issue type
     };
-  </script>
+
+    groupedIssues.forEach((frame) => {
+      frame.groupedIssues.forEach((issue) => {
+        issueTypes[issue.type]?.push(issue);
+      });
+    });
+
+    // Update the count for each issue type
+    Object.keys(issueTypes).forEach(type => {
+      document.getElementById(`${type}-count`).textContent = issueTypes[type].length;
+    });
+
+    // Add event listener for tab clicks
+    document.querySelectorAll('.tab').forEach(tab => {
+      const newTab = tab.cloneNode(true);
+      tab.parentNode.replaceChild(newTab, tab);
+
+      newTab.addEventListener('click', function () {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        renderIssues(issueTypes[this.dataset.type]);
+      });
+    });
+
+    // Function to render issues based on the selected tab
+    function renderIssues(issues) {
+      issuesContainer.innerHTML = '';
+      issuesContainer.style.display = 'block';
+
+      issues.forEach((issue) => {
+        let issueDescription = '';
+
+        if (issue.type === 'padding') {
+          issueDescription = `Padding Issue in "${issue.elementName}": Expected ${issue.expected}px ${issue.direction} padding, but found ${issue.spacing}px.`;
+        } else if (issue.type === 'spacing') {
+          issueDescription = `Spacing Issue in "${issue.elementName}": Expected ${issue.expected}px ${issue.direction} spacing, but found ${issue.spacing}px.`;
+        } else if (issue.type === 'color-token') {
+          issueDescription = `Color Token Issue in "${issue.elementName}": Expected "${issue.expected}" for ${issue.property}, but found "${issue.actual}".`;
+        } else if (issue.type === 'font-token') {
+          issueDescription = `Font Token Issue in "${issue.elementName}": Expected "${issue.expected}", but found "${issue.actual}".`;
+        } else if (issue.type === 'styling') {  // Handle styling issue type
+          issueDescription = `Styling Issue in "${issue.elementName}": Expected "${issue.expected}", but found "${issue.actual}".`;
+        }
+
+        const issueItem = document.createElement('div');
+        issueItem.className = 'issue-item';
+        issueItem.textContent = issueDescription;
+        issuesContainer.appendChild(issueItem);
+      });
+    }
+  };
+</script>
+
 </body>
 </html>

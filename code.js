@@ -16,6 +16,24 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
         const groupedIssues = [];
         const expectedTextStyle = "Header/Medium";
         const expectedColorStyle = "Alias/Text/strong";
+        for (const element of selectedElements) {
+            if (element.type === 'FRAME' || element.type === 'GROUP') {
+                const children = element.children || [];
+                const frameIssues = {
+                    frameName: element.name,
+                    groupedIssues: [],
+                };
+                for (const child of children) {
+                    if (child.type === 'TEXT') {
+                        const textIssues = yield checkStyling(child);
+                        frameIssues.groupedIssues.push(...textIssues.map((issue) => (Object.assign(Object.assign({}, issue), { elementName: child.name }))));
+                    }
+                }
+                if (frameIssues.groupedIssues.length > 0) {
+                    groupedIssues.push(frameIssues);
+                }
+            }
+        }
         figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
             if (msg.type === 'highlight-frame') {
                 const { frameId } = msg;
@@ -306,5 +324,57 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
         return {
             verticalSpacing: { actual: verticalSpacing, expected: expectedVerticalSpacing },
         };
+    }
+    function checkStyling(child) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const issues = [];
+            // Check if the child is a text element
+            if (child.type !== 'TEXT')
+                return issues;
+            // Define expected styles for each element
+            const styles = {
+                'main__heading': {
+                    fontFamily: 'Lato',
+                    fontSize: 24,
+                    fontStyle: 'normal',
+                    fontWeight: 700,
+                    lineHeight: 28,
+                },
+                'main__instructional': {
+                    fontFamily: 'Lato',
+                    fontSize: 14,
+                    fontStyle: 'normal',
+                    fontWeight: 400,
+                    lineHeight: 20,
+                }
+            };
+            // Ensure child.name is a valid key of styles
+            const elementName = child.name;
+            // Check if there are expected styles for the current element
+            if (styles[elementName]) {
+                const expectedStyles = styles[elementName];
+                // Get the actual styles from the child element
+                const actualStyles = {
+                    fontFamily: child.fontName.family,
+                    fontSize: child.fontSize,
+                    fontStyle: child.fontName.style.includes('Italic') ? 'italic' : 'normal',
+                    fontWeight: child.fontName.style.includes('Bold') ? 700 : 400,
+                    lineHeight: child.lineHeight.value,
+                };
+                // Compare the actual styles with the expected ones
+                Object.keys(expectedStyles).forEach((property) => {
+                    if (actualStyles[property] !== expectedStyles[property]) {
+                        issues.push({
+                            element: child,
+                            type: 'styling',
+                            property,
+                            expected: expectedStyles[property],
+                            actual: actualStyles[property],
+                        });
+                    }
+                });
+            }
+            return issues;
+        });
     }
 });

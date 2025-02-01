@@ -10,6 +10,31 @@ figma.ui.onmessage = async (msg) => {
         const expectedTextStyle = "Header/Medium";
         const expectedColorStyle = "Alias/Text/strong";
 
+        for (const element of selectedElements) {
+            if (element.type === 'FRAME' || element.type === 'GROUP') {
+                const children: any = element.children || [];
+                const frameIssues: any = {
+                    frameName: element.name,
+                    groupedIssues: [],
+                };
+
+                for (const child of children) {
+                    if (child.type === 'TEXT') {
+                        const textIssues = await checkStyling(child);
+                        frameIssues.groupedIssues.push(...textIssues.map((issue) => ({
+                            ...issue,
+                            elementName: child.name,
+                        })));
+                    }
+                }
+
+                if (frameIssues.groupedIssues.length > 0) {
+                    groupedIssues.push(frameIssues);
+                }
+            }
+        }
+
+
         figma.ui.onmessage = async (msg) => {
             if (msg.type === 'highlight-frame') {
                 const { frameId } = msg;
@@ -237,8 +262,6 @@ figma.ui.onmessage = async (msg) => {
 
 async function checkTokens(child: any, expectedTextStyle: string, expectedColorStyle: string) {
     const issues = [];
-
-    
     const textStyleId = child.textStyleId;
     if (textStyleId) {
         const style = await figma.getStyleByIdAsync(textStyleId);
@@ -354,4 +377,70 @@ function getSpacingBetweenElements(elem1: any, elem2: any, parentName: string, c
         verticalSpacing: { actual: verticalSpacing, expected: expectedVerticalSpacing },
     };
 }
+
+
+async function checkStyling(child: any): Promise<any[]> {
+    const issues: any[] = [];
+
+    // Check if the child is a text element
+    if (child.type !== 'TEXT') return issues;
+
+    // Define expected styles for each element
+    const styles: Record<string, {
+        fontFamily: string;
+        fontSize: number;
+        fontStyle: string;
+        fontWeight: number;
+        lineHeight: number;
+    }> = {
+        'main__heading': {
+            fontFamily: 'Lato',
+            fontSize: 24,
+            fontStyle: 'normal',
+            fontWeight: 700,
+            lineHeight: 28,
+        },
+        'main__instructional': {
+            fontFamily: 'Lato',
+            fontSize: 14,
+            fontStyle: 'normal',
+            fontWeight: 400,
+            lineHeight: 20,
+        }
+    };
+
+    // Ensure child.name is a valid key of styles
+    const elementName = child.name as keyof typeof styles;
+
+    // Check if there are expected styles for the current element
+    if (styles[elementName]) {
+        const expectedStyles = styles[elementName];
+        
+        // Get the actual styles from the child element
+        const actualStyles = {
+            fontFamily: child.fontName.family,
+            fontSize: child.fontSize,
+            fontStyle: child.fontName.style.includes('Italic') ? 'italic' : 'normal',
+            fontWeight: child.fontName.style.includes('Bold') ? 700 : 400,
+            lineHeight: child.lineHeight.value,
+        };
+
+        // Compare the actual styles with the expected ones
+        (Object.keys(expectedStyles) as (keyof typeof expectedStyles)[]).forEach((property) => {
+            if (actualStyles[property] !== expectedStyles[property]) {
+                issues.push({
+                    element: child,
+                    type: 'styling',
+                    property,
+                    expected: expectedStyles[property],
+                    actual: actualStyles[property],
+                });
+            }
+        });
+    }
+
+    return issues;
+}
+
+
 }
