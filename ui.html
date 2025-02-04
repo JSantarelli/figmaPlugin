@@ -153,9 +153,20 @@
         const issueItem = document.createElement('div');
         issueItem.className = 'issue-item';
         issueItem.textContent = issueDescription;
+
+        // Add hover events to send messages to the plugin with the correct frameId
+        issueItem.addEventListener('mouseenter', () => {
+          parent.postMessage({ pluginMessage: { type: 'highlight-frame', frameId: issue.element.id } }, '*');
+        });
+
+        issueItem.addEventListener('mouseleave', () => {
+          parent.postMessage({ pluginMessage: { type: 'reset-highlight', frameId: issue.element.id } }, '*');
+        });
+
         issuesContainer.appendChild(issueItem);
       });
     }
+
   };
 </script>
 
