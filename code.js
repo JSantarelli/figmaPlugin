@@ -44,11 +44,24 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
                         node.fills = [
                             {
                                 type: 'SOLID',
-                                color: { r: 1, g: 1, b: 0 },
-                                opacity: 0.5,
-                                blendMode: 'MULTIPLY',
+                                color: { r: 1, g: 0.831, b: 0.227 },
+                                opacity: 1,
+                                blendMode: 'NORMAL',
                             },
                         ];
+                        // if ('effects' in node) {
+                        //     node.effects = [
+                        //         {
+                        //             type: "DROP_SHADOW",
+                        //             color: { r: 0, g: 0, b: 0, a: 0.5 }, 
+                        //             offset: { x: 0, y: 0 },
+                        //             radius: 2,
+                        //             spread: 4,
+                        //             visible: true,
+                        //             blendMode: "MULTIPLY",
+                        //         },
+                        //     ];
+                        // }
                     }
                     else if (node) {
                         figma.notify(`Cannot highlight node "${node.name}" because it does not support strokes.`);
@@ -92,17 +105,17 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
                                 node.strokes = [
                                     {
                                         type: 'SOLID',
-                                        color: { r: 1, g: 1, b: 0 },
+                                        color: { r: 1, g: 0.831, b: 0.227 },
                                         opacity: 1,
                                     },
                                 ];
                                 node.effects = [
                                     {
                                         type: "DROP_SHADOW",
-                                        color: { r: 1, g: 1, b: 0, a: 1 },
-                                        offset: { x: 4, y: 4 },
-                                        radius: 2,
-                                        spread: 4,
+                                        color: { r: 1, g: 0.831, b: 0.227, a: 1 },
+                                        offset: { x: 0, y: 0 },
+                                        radius: 4,
+                                        spread: 6,
                                         visible: true,
                                         blendMode: "NORMAL",
                                     },
@@ -110,11 +123,11 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
                             }
                         }
                         const yellowFrame = figma.createFrame();
-                        yellowFrame.resize(280, 120);
+                        yellowFrame.resize(140, 36);
                         yellowFrame.fills = [
                             {
                                 type: 'SOLID',
-                                color: { r: 1, g: 1, b: 0 },
+                                color: { r: 1, g: 0.831, b: 0.227 },
                                 opacity: 1,
                             },
                         ];
@@ -122,8 +135,8 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
                         const bounds = node.absoluteBoundingBox;
                         if (bounds) {
                             const { x, y } = bounds;
-                            yellowFrame.x = x - yellowFrame.width + 280;
-                            yellowFrame.y = y - yellowFrame.height + 120;
+                            yellowFrame.x = x - yellowFrame.width + 140;
+                            yellowFrame.y = y - yellowFrame.height + 36;
                         }
                         figma.currentPage.appendChild(yellowFrame);
                         figma.notify('Accessibility landmarks applied.');
