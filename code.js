@@ -90,14 +90,20 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
                     figma.notify('Please select at least one frame or group.');
                     return;
                 }
+                // Load fonts before creating text
+                yield figma.loadFontAsync({ family: "Inter", style: "Regular" });
                 for (const node of selectedNodes) {
                     if (node.type === 'FRAME' || node.type === 'GROUP' || node.type === 'COMPONENT') {
                         let landmark = '';
-                        if (node.name === 'main__content') {
+                        // Add "main" to the conditions
+                        if (node.name === 'main') {
                             landmark = '<main>';
                         }
-                        else if (node.name === 'Tabs' || node.name === 'Stepper') {
+                        else if (node.name === 'Tabs' || node.name === 'Stepper' || node.name === 'Breadcrumb') {
                             landmark = '<div role="navigation">';
+                        }
+                        else if (node.name === 'main__content') {
+                            landmark = '<section>';
                         }
                         if (landmark) {
                             if ('fills' in node) {
@@ -121,28 +127,40 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
                                     },
                                 ];
                             }
+                            const yellowFrame = figma.createFrame();
+                            yellowFrame.resize(140, 36);
+                            yellowFrame.fills = [
+                                {
+                                    type: 'SOLID',
+                                    color: { r: 1, g: 0.831, b: 0.227 },
+                                    opacity: 1,
+                                },
+                            ];
+                            yellowFrame.name = "Landmark Label";
+                            // Create text node
+                            const textNode = figma.createText();
+                            textNode.characters = landmark;
+                            textNode.fontSize = 14;
+                            textNode.fills = [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 } }];
+                            // Add text to the frame
+                            yellowFrame.appendChild(textNode);
+                            // Position text in center of frame
+                            setTimeout(() => {
+                                textNode.x = (yellowFrame.width - textNode.width) / 2;
+                                textNode.y = (yellowFrame.height - textNode.height) / 2;
+                            }, 100);
+                            const bounds = node.absoluteBoundingBox;
+                            if (bounds) {
+                                const { x, y } = bounds;
+                                yellowFrame.x = x - yellowFrame.width + 140;
+                                yellowFrame.y = y - yellowFrame.height + 36;
+                            }
+                            figma.currentPage.appendChild(yellowFrame);
+                            figma.notify('Accessibility landmarks applied.');
                         }
-                        const yellowFrame = figma.createFrame();
-                        yellowFrame.resize(140, 36);
-                        yellowFrame.fills = [
-                            {
-                                type: 'SOLID',
-                                color: { r: 1, g: 0.831, b: 0.227 },
-                                opacity: 1,
-                            },
-                        ];
-                        yellowFrame.name = landmark;
-                        const bounds = node.absoluteBoundingBox;
-                        if (bounds) {
-                            const { x, y } = bounds;
-                            yellowFrame.x = x - yellowFrame.width + 140;
-                            yellowFrame.y = y - yellowFrame.height + 36;
+                        else {
+                            figma.notify(`No accessibility landmark available for "${node.name}".`);
                         }
-                        figma.currentPage.appendChild(yellowFrame);
-                        figma.notify('Accessibility landmarks applied.');
-                    }
-                    else {
-                        figma.notify(`No accessibility landmark available for "${node.name}".`);
                     }
                 }
             }
