@@ -1,0 +1,340 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Lato", Arial, sans-serif;
+  line-height: 1.5;
+  background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: 36px 24px 24px 24px;
+  background: white;
+  position: relative;
+  height: 100%;
+}
+
+ul, ol, li {
+  list-style: none;
+}
+
+blockquote, q {
+  quotes: none;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+a:focus, a:hover {
+  text-decoration: underlane;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 1rem;
+}
+.flex-row {
+  display: flex;
+  width: 100%;
+  gap: 1rem;
+}
+
+.header_title {
+  color: #1D1B20;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 28px;
+  word-wrap: break-word;
+}
+.header_subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+  word-wrap: break-word;
+}
+
+.instructional_title {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 20px;
+  word-wrap: break-word;
+}
+.instructional_text {
+  color: #292E35;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+  word-wrap: break-word;
+}
+
+ul.list-column {
+  display: flex;
+  flex-direction: column;
+  height: 280px;
+  overflow-y: scroll;
+  gap: 0.5rem;
+}
+ul.list-column li.list-item {
+  width: 100%;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 6px;
+  outline: 1px #C0C7CF solid;
+  outline-offset: -1px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+ul.list-column li.list-item .item-text {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+ul.list-column li.list-item .item-title {
+  color: #2D4460;
+  text-transform: capitalize;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 20px;
+  word-wrap: break-word;
+}
+ul.list-column li.list-item .item-description {
+  color: #5F6268;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+  word-wrap: break-word;
+}
+ul.list-column li.list-item .tag {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #795F24;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 16px;
+  background-color: #FBECC8;
+  border-radius: 25px;
+  padding: 4px 12px;
+}
+
+.button, .button--tertiary, .button--secondary {
+  position: relative;
+  border-radius: 4px;
+  width: fit-content;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-family: Lato;
+  background-color: #007b97;
+  color: #fff;
+}
+.button:hover, .button--tertiary:hover, .button--secondary:hover {
+  background: #007994;
+  cursor: pointer;
+}
+.button--secondary {
+  background-color: #fff;
+  border: 1px solid #007b97;
+  color: #2D4460;
+  width: 100%;
+}
+.button--tertiary {
+  background-color: transparent;
+  border: 1px solid transparent;
+  color: #007b97;
+  width: 100%;
+}
+.button-label {
+  position: relative;
+  line-height: 20px;
+}
+
+nav.stepper {
+  display: flex;
+  justify-content: space-between;
+  height: fit-content;
+  padding: 16px 0;
+}
+nav.stepper .step {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  font-size: 10px;
+  color: #627388;
+  height: fit-content;
+}
+nav.stepper .step .step_title {
+  font-size: 14px;
+  font-weight: bolder;
+  white-space: nowrap;
+}
+nav.stepper .step:hover {
+  cursor: pointer;
+}
+nav.stepper .step:hover .step1, nav.stepper .step:hover .step_title {
+  color: #007b97;
+}
+nav.stepper .step:hover .tab_img-rounded {
+  border-color: #007b97;
+}
+
+.tab_img-rounded {
+  height: 36px;
+  width: 36px;
+  border: solid 8px gray;
+  border-radius: 50%;
+}
+
+.step1 {
+  position: relative;
+  line-height: 16px;
+}
+
+.title {
+  position: relative;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: pre;
+}
+
+.step-parent {
+  position: absolute;
+  top: 1.47px;
+  left: 43px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.content-section {
+  display: none;
+}
+.content-section.active {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  height: 100%;
+}
+.content-section.active .step1, .content-section.active .title {
+  color: #007b97;
+}
+.content-section.active .tab_img-rounded {
+  border-color: #007b97;
+}
+.content-section.active footer {
+  width: 100%;
+  background: white;
+  padding-top: 16px;
+  position: relative;
+  bottom: 0;
+  border-top: solid 1px lightgray;
+}
+.content-section.active footer button {
+  justify-self: end;
+}
+
+.tab-container {
+  display: flex;
+  width: 100%;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  height: 48px;
+}
+
+.tab {
+  position: relative;
+  width: fit-content;
+  max-width: 200px;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 8px;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 16px;
+  color: #2D4460;
+  font-family: Lato;
+}
+.tab:hover {
+  cursor: pointer;
+}
+.tab.active, .tab:active, .tab:focus {
+  border-bottom: solid 4px #2D4460;
+}
+.tab.active .tab-name, .tab:active .tab-name, .tab:focus .tab-name {
+  color: #2D4460;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+}
+.tab.active .count, .tab:active .count, .tab:focus .count {
+  color: white;
+  background-color: #2D4460;
+}
+.tab .tab-name {
+  position: relative;
+  line-height: 24px;
+}
+.tab .count {
+  border-radius: 16px;
+  background-color: #e0e3e7;
+  border: 1px solid #627388;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  text-align: center;
+  font-size: 12px;
+}
+.tab .si-inbox-f-icon {
+  width: 18px;
+  height: 18px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.alloy-logo {
+  width: 25%;
+  height: 25%;
+}

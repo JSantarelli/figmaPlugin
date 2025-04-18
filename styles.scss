@@ -1,0 +1,384 @@
+// Variables
+$primary-color: #007b97;
+$dark-text: #2D4460;
+$light-text: #5F6268;
+$secondary-text: #627388;
+$border-color: #C0C7CF;
+$background-color: #f5f5f5;
+$tag-bg: #FBECC8;
+$tag-text: #795F24;
+
+// Base Reset
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Lato', Arial, sans-serif;
+  line-height: 1.5;
+  background-color: $background-color;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: 36px 24px 24px 24px;
+  background: white;
+  position: relative;
+}
+
+// Reset Elements
+ul, ol { list-style: none; }
+blockquote, q { quotes: none; }
+table { border-collapse: collapse; border-spacing: 0; }
+img { max-width: 100%; height: auto; }
+a {
+  color: inherit;
+  text-decoration: none;
+  &:focus, &:hover { text-decoration: underline; }
+}
+
+// Form Elements
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+
+// Layout
+
+// Flex Containers
+.flex {
+  &-column {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+  }
+  
+  &-row {
+    display: flex;
+    width: 100%;
+    gap: 1rem;
+  }
+}
+
+// Typography
+.header {
+  &_title {
+    color: #1D1B20;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 28px;
+    word-wrap: break-word;
+  }
+  
+  &_subtitle {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+    word-wrap: break-word;
+  }
+}
+
+.instructional {
+  &_title {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 20px;
+    word-wrap: break-word;
+  }
+  
+  &_text {
+    color: #292E35;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 20px;
+    word-wrap: break-word;
+  }
+}
+
+// Lists
+ul.list-column {
+  display: flex;
+  flex-direction: column;
+  height: 100px;
+  overflow-y: scroll;
+  gap: 0.5rem;
+  
+  li.list-item {
+    width: 100%;
+    padding: 12px 16px;
+    background: white;
+    border-radius: 6px;
+    outline: 1px $border-color solid;
+    outline-offset: -1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    
+    .item-text {
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .item-title {
+      color: $dark-text;
+      text-transform: capitalize;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 20px;
+      word-wrap: break-word;
+    }
+    
+    .item-description {
+      color: $light-text;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 20px;
+      word-wrap: break-word;
+    }
+    
+    .tag {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      color: $tag-text;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      line-height: 16px;
+      background-color: $tag-bg;
+      border-radius: 25px;
+      padding: 4px 12px;
+    }
+  }
+}
+
+// Buttons
+.button {
+  position: relative;
+  border-radius: 4px;
+  width: fit-content;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-family: Lato;
+
+  &:hover {
+    background: darken($color: $primary-color, $amount: 0.5);
+    cursor: pointer;
+  }
+  
+  // Primary button
+  background-color: $primary-color;
+  color: #fff;
+  
+  &--secondary {
+    @extend .button;
+    background-color: #fff;
+    border: 1px solid $primary-color;
+    color: $dark-text;
+    width: 100%;
+  }
+  
+  &--tertiary {
+    @extend .button;
+    background-color: transparent;
+    border: 1px solid transparent;
+    color: $primary-color;
+    width: 100%;
+  }
+  
+  &-label {
+    position: relative;
+    line-height: 20px;
+  }
+}
+
+// Stepper Navigation
+nav.stepper {
+  display: flex;
+  justify-content: space-between;
+  height: fit-content;
+  padding: 16px 0;
+  
+  .step {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    font-size: 10px;
+    color: $secondary-text;
+    height: fit-content;
+    
+    .step_title {
+      font-size: 14px;
+      font-weight: bolder;
+      white-space: nowrap;
+    }
+    
+    &:hover {
+      cursor: pointer;
+      
+      .step1, .step_title {
+        color: $primary-color;
+      }
+      
+      .tab_img-rounded {
+        border-color: $primary-color;
+      }
+    }
+  }
+}
+
+.tab_img-rounded {
+  height: 36px;
+  width: 36px;
+  border: solid 8px gray;
+  border-radius: 50%;
+}
+
+.step1 {
+  position: relative;
+  line-height: 16px;
+}
+
+.title {
+  position: relative;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: pre;
+}
+
+.step-parent {
+  position: absolute;
+  top: 1.47px;
+  left: 43px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+// Content Sections
+.content-section {
+  display: none;
+  
+  &.active {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 100%;
+    
+    .step1, .title {
+      color: $primary-color;
+    }
+    
+    .tab_img-rounded {
+      border-color: $primary-color;
+    }
+    
+    footer {
+      width: 100%;
+      background: white;
+      padding-top: 16px;
+      position: relative;
+      bottom: 0;
+      border-top: solid 1px lightgray;
+      
+      button {
+        justify-self: end;
+      }
+    }
+  }
+}
+
+// Tabs
+.tab-container {
+  display: flex;
+  width: 100%;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  height: 48px;
+}
+
+.tab {
+  position: relative;
+  width: fit-content;
+  max-width: 200px;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 8px;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 16px;
+  color: $dark-text;
+  font-family: Lato;
+  
+  &:hover {
+    cursor: pointer;
+  }
+  
+  &.active, &:active, &:focus {
+    border-bottom: solid 4px $dark-text;
+    
+    .tab-name {
+      color: $dark-text;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 24px;
+    }
+    
+    .count {
+      color: white;
+      background-color: $dark-text;
+    }
+  }
+  
+  .tab-name {
+    position: relative;
+    line-height: 24px;
+  }
+  
+  .count {
+    border-radius: 16px;
+    background-color: #e0e3e7;
+    border: 1px solid $secondary-text;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    text-align: center;
+    font-size: 12px;
+  }
+  
+  .si-inbox-f-icon {
+    width: 18px;
+    height: 18px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+}
+
+.alloy-logo {
+  width: 25%;
+  height: 25%;
+}

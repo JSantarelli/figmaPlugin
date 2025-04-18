@@ -1,174 +1,743 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Design Review</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 10px;
-      background-color: #f5f5f5;
-    }
-    h2 {
-      margin: 0 0 10px;
-      font-size: 18px;
-    }
-    button {
-      background-color: #4CAF50;
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-    .tabs {
-      display: flex;
-      margin-top: 10px;
-      border-bottom: 2px solid #ddd;
-    }
-    .tab {
-      padding: 10px 15px;
-      cursor: pointer;
-      border: 1px solid #ddd;
-      border-bottom: none;
-      background: #f9f9f9;
-    }
-    .tab.active {
-      background: white;
-      font-weight: bold;
-    }
-    .tab-count {
-      background: red;
-      color: white;
-      border-radius: 50%;
-      padding: 2px 6px;
-      margin-left: 5px;
-    }
-    .issues-container {
-      display: none;
-      padding: 10px;
-      border: 1px solid #ddd;
-      background: white;
-    }
-    .issue-item {
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      background-color: #f9f9f9;
-      cursor: pointer;
-    }
-    .issue-item:hover {
-      background-color: #e6f7ff;
-      border-color: #91d5ff;
-    }
-  </style>
-</head>
-<body>
-  <h2>Design Spacing Review</h2>
-  <button id="runReview">Run Review</button>
-  <button id="addLandmark">Add Accessibility Landmark</button>
-  <div class="tabs">
-    <div class="tab" data-type="padding">Padding <span class="tab-count" id="padding-count">0</span></div>
-    <div class="tab" data-type="spacing">Spacing <span class="tab-count" id="spacing-count">0</span></div>
-    <div class="tab" data-type="font-token">Font Token <span class="tab-count" id="font-token-count">0</span></div>
-    <div class="tab" data-type="color-token">Color Token <span class="tab-count" id="color-token-count">0</span></div>
-    <div class="tab" data-type="styling">Styling <span class="tab-count" id="styling-count">0</span></div> <!-- Added Styling Tab -->
-</div>
-<div id="issuesContainer"></div>
-<script>
-  document.getElementById('runReview').addEventListener('click', () => {
-    parent.postMessage({ pluginMessage: { type: 'run-review' } }, '*');
-  });
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Design Review</title>
+    <style>
+      *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-  document.getElementById('addLandmark').addEventListener('click', () => {
-    parent.postMessage({ pluginMessage: { type: 'add-landmark' } }, '*');
-  });
+  body {
+    font-family: "Lato", Arial, sans-serif;
+    line-height: 1.5;
+    background-color: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    justify-content: space-between;
+    overflow: hidden;
+    padding: 36px 24px 24px 24px;
+    background: white;
+    position: relative;
+    height: 100%;
+  }
 
-  window.onmessage = (event) => {
-    const message = event.data.pluginMessage;
-    if (message.type !== 'show-groupedIssues') return;
+  ul, ol, li {
+    list-style: none;
+  }
 
-    const groupedIssues = message.grouped;
-    const issuesContainer = document.getElementById('issuesContainer');
-    issuesContainer.innerHTML = '';
+  blockquote, q {
+    quotes: none;
+  }
 
-    const issueTypes = { 
-      padding: [], 
-      spacing: [], 
-      'font-token': [], 
-      'color-token': [],
-      styling: [] // Added styling issue type
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  a:focus, a:hover {
+    text-decoration: underlane;
+  }
+
+  button, input, select, textarea {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    background-color: transparent;
+    border: none;
+    outline: none;
+  }
+
+  .flex-column {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+  }
+  .flex-row {
+    display: flex;
+    width: 100%;
+    gap: 1rem;
+  }
+
+  .header_title {
+    color: #1D1B20;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 28px;
+    word-wrap: break-word;
+  }
+  .header_subtitle {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+    word-wrap: break-word;
+  }
+
+  .instructional_title {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 20px;
+    word-wrap: break-word;
+  }
+  .instructional_text {
+    color: #292E35;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 20px;
+    word-wrap: break-word;
+  }
+
+  ul.list-column {
+    display: flex;
+    flex-direction: column;
+    height: 280px;
+    overflow-y: scroll;
+    gap: 0.5rem;
+  }
+  ul.list-column li.list-item {
+    width: 100%;
+    padding: 12px 16px;
+    background: white;
+    border-radius: 6px;
+    outline: 1px #C0C7CF solid;
+    outline-offset: -1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  ul.list-column li.list-item .item-text {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  ul.list-column li.list-item .item-title {
+    color: #2D4460;
+    text-transform: capitalize;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 20px;
+    word-wrap: break-word;
+  }
+  ul.list-column li.list-item .item-description {
+    color: #5F6268;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 20px;
+    word-wrap: break-word;
+  }
+  ul.list-column li.list-item .tag {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #795F24;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 16px;
+    background-color: #FBECC8;
+    border-radius: 25px;
+    padding: 4px 12px;
+  }
+
+  .button, .button--tertiary, .button--secondary {
+    position: relative;
+    border-radius: 4px;
+    width: fit-content;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-family: Lato;
+    background-color: #007b97;
+    color: #fff;
+  }
+  .button:hover, .button--tertiary:hover, .button--secondary:hover {
+    background: #007994;
+    cursor: pointer;
+  }
+  .button--secondary {
+    background-color: #fff;
+    border: 1px solid #007b97;
+    color: #2D4460;
+    width: 100%;
+  }
+  .button--tertiary {
+    background-color: transparent;
+    border: 1px solid transparent;
+    color: #007b97;
+    width: 100%;
+  }
+  .button-label {
+    position: relative;
+    line-height: 20px;
+  }
+
+  nav.stepper {
+    display: flex;
+    justify-content: space-between;
+    height: fit-content;
+    padding: 16px 0;
+  }
+  nav.stepper .step {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    font-size: 10px;
+    color: #627388;
+    height: fit-content;
+  }
+  nav.stepper .step .step_title {
+    font-size: 14px;
+    font-weight: bolder;
+    white-space: nowrap;
+  }
+  nav.stepper .step:hover {
+    cursor: pointer;
+  }
+  nav.stepper .step:hover .step1, nav.stepper .step:hover .step_title {
+    color: #007b97;
+  }
+  nav.stepper .step:hover .tab_img-rounded {
+    border-color: #007b97;
+  }
+
+  .tab_img-rounded {
+    height: 36px;
+    width: 36px;
+    border: solid 8px gray;
+    border-radius: 50%;
+  }
+
+  .step1 {
+    position: relative;
+    line-height: 16px;
+  }
+
+  .title {
+    position: relative;
+    font-size: 14px;
+    line-height: 20px;
+    white-space: pre;
+  }
+
+  .step-parent {
+    position: absolute;
+    top: 1.47px;
+    left: 43px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .content-section {
+    display: none;
+  }
+  .content-section.active {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 100%;
+  }
+  .content-section.active .step1, .content-section.active .title {
+    color: #007b97;
+  }
+  .content-section.active .tab_img-rounded {
+    border-color: #007b97;
+  }
+  .content-section.active footer {
+    width: 100%;
+    background: white;
+    padding-top: 16px;
+    position: relative;
+    bottom: 0;
+    border-top: solid 1px lightgray;
+  }
+  .content-section.active footer button {
+    justify-self: end;
+  }
+
+  .tab-container {
+    display: flex;
+    width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    height: 48px;
+  }
+
+  .tab {
+    position: relative;
+    width: fit-content;
+    max-width: 200px;
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    gap: 8px;
+    text-align: left;
+    white-space: nowrap;
+    font-size: 16px;
+    color: #2D4460;
+    font-family: Lato;
+  }
+  .tab:hover {
+    cursor: pointer;
+  }
+  .tab.active, .tab:active, .tab:focus {
+    border-bottom: solid 4px #2D4460;
+  }
+  .tab.active .tab-name, .tab:active .tab-name, .tab:focus .tab-name {
+    color: #2D4460;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 24px;
+  }
+  .tab.active .count, .tab:active .count, .tab:focus .count {
+    color: white;
+    background-color: #2D4460;
+  }
+  .tab .tab-name {
+    position: relative;
+    line-height: 24px;
+  }
+  .tab .count {
+    border-radius: 16px;
+    background-color: #e0e3e7;
+    border: 1px solid #627388;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    text-align: center;
+    font-size: 12px;
+  }
+  .tab .si-inbox-f-icon {
+    width: 18px;
+    height: 18px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .alloy-logo {
+    width: 25%;
+    height: 25%;
+  }
+    </style>
+  </head>
+  <body>
+    <header>
+      <section class="flex-row">
+        <img class="alloy-logo" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDaCwarznykoAUVVtl6D6cXaWaM_mBg97LnQ&s">
+        <div class="flex-column">
+            <h1 class="header_title">Alloy pre-flight review</h1>
+            <p>Highlights issues directly in the UI for quick fixes before requesting an Alloy review.</p>
+        </div>
+      </section>
+      <nav class="stepper">
+          <section class="step active" data-target="pre-review">
+          <div class="tab_img-rounded">
+            <img class="group-child" alt="">
+          <div class="step-parent">
+            <div class="step1">STEP #1</div>
+            <b class="step_title">Alloy pre-review</b>
+            </div>
+          </div>
+        </section>
+          <section class="step" data-target="accessibility">
+          <div class="tab_img-rounded">
+            <img class="group-child" alt="">
+          <div class="step-parent">
+            <div class="step1">STEP #2</div>
+            <b class="step_title">Accessibility</b>
+            </div>
+          </div>
+        </section>
+      </nav>
+    </header>
+    <hr>
+    <section id="pre-review" class="content-section active">
+      <div class="flex-row">
+        <i class="fa fa-info-circle"></i>
+        <small>
+          <b class="instructional_title">How Alloy pre-flight review works?</b>
+          <p class="instructional_text">Tapping "Run review" will display a test image with your details and safety indicators in your Smart Badge.</p>
+        </small>      
+      </div>
+      <hr>
+      <section class="tab-container">
+        <div class="tab" data-type="padding">
+          <div class="free-icon">
+            <i class="fa fa-user"></i>
+          </div>
+          <div class="tab-name">Padding</div>
+          <div class="count">
+            <span class="tab-count" id="padding-count">0</span>
+          </div>
+        </div>
+        <div class="tab" data-type="spacing">
+          <div class="free-icon">
+            <i class="fa fa-arrows"></i>
+          </div>
+          <div class="tab-name">Spacing</div>
+          <div class="count">
+            <span class="tab-count" id="spacing-count">0</span>
+          </div>
+        </div>
+        <div class="tab" data-type="font-token">
+          <div class="free-icon">
+            <i class="fa fa-font"></i>
+          </div>
+          <div class="tab-name">Font Token</div>
+          <div class="count">
+            <span class="tab-count" id="fonts-count">0</span>
+          </div>
+        </div>
+        <div class="tab" data-type="color-token">
+          <div class="free-icon">
+            <i class="fa fa-paint-brush"></i>
+          </div>
+          <div class="tab-name">Color Token</div>
+          <div class="count">
+            <span class="tab-count" id="colors-count">0</span>
+          </div>
+        </div>
+        <div class="tab" data-type="styling">
+          <div class="free-icon">
+            <i class="fa fa-css3"></i>
+          </div>
+          <div class="tab-name">Styling</div>
+          <div class="count">
+            <span class="tab-count" id="styling-count">0</span>
+          </div>
+        </div>
+      </section>
+      <ul id="issuesContainer" class="list-column"></ul>
+      
+      <footer>
+        <button id="runReview" class="button">
+          <div class="button-label">Run review</div>
+        </button>
+      </footer>
+    </section>
+    <section id="accessibility" class="content-section">
+      <div class="flex-row">
+        <i class="fa fa-info-circle"></i>
+        <small>
+          <b class="instructional_title">How accessibility annotations works?</b>
+          <p class="instructional_text">Tapping "Add annotation" will display a test image with your details and safety indicators in your Smart Badge.</p>
+        </small>      
+      </div>
+      <hr>
+      <section class="tab-container">
+      <div class="tab active" data-type="landmarks">
+        <div class="free-icon">
+          <i class="fa fa-map-marker"></i>
+        </div>
+        <div class="tab-name">Landmarks</div>
+        <div class="count">
+          <span class="tab-count" id="landmarks-count">0</span>
+        </div>
+      </div>
+      <div class="tab" data-type="aria-labels">
+        <div class="free-icon">
+          <i class="fa fa-tag"></i>
+        </div>
+        <div class="tab-name">Aria Labels</div>
+        <div class="count">
+          <span class="tab-count" id="aria-count">0</span>
+        </div>
+      </div>
+      <div class="tab" data-type="alt-text">
+        <div class="free-icon">
+          <i class="fa fa-image"></i>
+        </div>
+        <div class="tab-name">Alt Text</div>
+        <div class="count">
+          <span class="tab-count" id="alt-count">0</span>
+        </div>
+      </div>
+      <div class="tab" data-type="headings">
+        <div class="free-icon">
+          <i class="fa fa-header"></i>
+        </div>
+        <div class="tab-name">Headings</div>
+        <div class="count">
+          <span class="tab-count" id="headings-count">0</span>
+        </div>
+      </div>
+    </section>
+      <ul id="accAnnotations" class="list-column"></ul>
+      <footer>
+        <button id="addLandmark" class="button">
+          <div class="button-label">Add landmarks</div>
+        </button>
+      </footer>
+    </section>
+
+  <script>
+    // Store added landmarks
+    let addedLandmarks = [];
+
+    document.getElementById('runReview').addEventListener('click', () => {
+      parent.postMessage({ pluginMessage: { type: 'run-review' } }, '*');
+    });
+    
+    document.getElementById('addLandmark').addEventListener('click', () => {
+      parent.postMessage({ pluginMessage: { type: 'add-landmark' } }, '*');
+    });
+
+    // Function to render landmarks in the accessibility tab
+    function renderLandmarks(landmarks) {
+      const landmarksContainer = document.getElementById('accAnnotations');
+      landmarksContainer.innerHTML = '';
+      
+      if (landmarks.length === 0) {
+        const noLandmarksMessage = document.createElement('div');
+        noLandmarksMessage.className = 'no-issues-message';
+        noLandmarksMessage.textContent = 'No landmarks added yet';
+        landmarksContainer.appendChild(noLandmarksMessage);
+        return;
+      }
+
+      landmarks.forEach((landmark) => {
+        const landmarkItem = document.createElement('li');
+        landmarkItem.className = 'list-item';
+        
+        const itemTextDiv = document.createElement('div');
+        itemTextDiv.className = 'item-text';
+        
+        const itemTitle = document.createElement('div');
+        itemTitle.className = 'item-title';
+        itemTitle.textContent = landmark.nodeName;
+        
+        const itemDescription = document.createElement('div');
+        itemDescription.className = 'item-description';
+        itemDescription.textContent = landmark.landmarkType;
+        
+        itemTextDiv.appendChild(itemTitle);
+        itemTextDiv.appendChild(itemDescription);
+        
+        const tagSpan = document.createElement('span');
+        tagSpan.className = 'tag';
+        tagSpan.textContent = landmark.role;
+        
+        landmarkItem.appendChild(itemTextDiv);
+        landmarkItem.appendChild(tagSpan);
+        
+        // Add hover events to send messages to the plugin
+        landmarkItem.addEventListener('mouseenter', () => {
+          parent.postMessage({ 
+            pluginMessage: { 
+              type: 'highlight-frame', 
+              frameId: landmark.nodeId 
+            }
+          }, '*');
+        });
+
+        landmarkItem.addEventListener('mouseleave', () => {
+          parent.postMessage({ 
+            pluginMessage: { 
+              type: 'reset-highlight', 
+              frameId: landmark.nodeId 
+            }
+          }, '*');
+        });
+
+        landmarksContainer.appendChild(landmarkItem);
+      });
+      
+      // Update the landmark count
+      document.getElementById('landmarks-count').textContent = landmarks.length;
+    }
+
+    window.onmessage = (event) => {
+      const message = event.data.pluginMessage;
+      
+      // Handle issue display
+      if (message.type === 'show-groupedIssues') {
+        const groupedIssues = message.grouped;
+        const issuesContainer = document.getElementById('issuesContainer');
+        issuesContainer.innerHTML = '';
+
+        const issueTypes = { 
+          padding: [], 
+          spacing: [], 
+          'font-token': [], 
+          'color-token': [],
+          styling: []
+        };
+
+        // Group issues by type
+        groupedIssues.forEach((frame) => {
+          frame.groupedIssues.forEach((issue) => {
+            if (issueTypes[issue.type]) {
+              issueTypes[issue.type].push(issue);
+            }
+          });
+        });
+
+        // Update the count for each issue type
+        Object.keys(issueTypes).forEach(type => {
+          const countElement = document.getElementById(`${type.replace('-', '')}-count`);
+          if (countElement) {
+            countElement.textContent = issueTypes[type].length;
+          }
+        });
+
+        // Add event listener for tab clicks
+        document.querySelectorAll('.tab').forEach(tab => {
+          tab.addEventListener('click', function() {
+            const parent = this.closest('.content-section');
+            parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            const type = this.getAttribute('data-type');
+            if (parent.id === 'pre-review' && type && issueTypes[type]) {
+              renderIssues(issueTypes[type]);
+            } else if (parent.id === 'accessibility' && type === 'landmarks') {
+              renderLandmarks(addedLandmarks);
+            }
+          });
+        });
+
+        // Select the first tab with issues by default
+        const firstTabWithIssues = Object.keys(issueTypes).find(type => issueTypes[type].length > 0);
+        if (firstTabWithIssues) {
+          const firstTab = document.querySelector(`.tab[data-type="${firstTabWithIssues}"]`);
+          if (firstTab) {
+            firstTab.click(); // Programmatically click the first tab with issues
+          }
+        }
+      }
+      
+      // Handle landmark added response
+      if (message.type === 'landmark-added') {
+        addedLandmarks.push(message.landmark);
+        renderLandmarks(addedLandmarks);
+        
+        // Ensure the landmarks tab is active and visible
+        document.querySelector('[data-target="accessibility"]').click();
+        document.querySelector('#accessibility .tab[data-type="landmarks"]').click();
+      }
     };
-
-    groupedIssues.forEach((frame) => {
-      frame.groupedIssues.forEach((issue) => {
-        issueTypes[issue.type]?.push(issue);
-      });
-    });
-
-    // Update the count for each issue type
-    Object.keys(issueTypes).forEach(type => {
-      document.getElementById(`${type}-count`).textContent = issueTypes[type].length;
-    });
-
-    // Add event listener for tab clicks
-    document.querySelectorAll('.tab').forEach(tab => {
-      const newTab = tab.cloneNode(true);
-      tab.parentNode.replaceChild(newTab, tab);
-
-      newTab.addEventListener('click', function () {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-        renderIssues(issueTypes[this.dataset.type]);
-      });
-    });
 
     // Function to render issues based on the selected tab
     function renderIssues(issues) {
+      const issuesContainer = document.getElementById('issuesContainer');
       issuesContainer.innerHTML = '';
-      issuesContainer.style.display = 'block';
+
+      if (issues.length === 0) {
+        const noIssuesMessage = document.createElement('div');
+        noIssuesMessage.className = 'no-issues-message';
+        noIssuesMessage.textContent = 'No issues found for this category';
+        issuesContainer.appendChild(noIssuesMessage);
+        return;
+      }
 
       issues.forEach((issue) => {
-        let issueDescription = '';
+        const issueItem = document.createElement('li');
+        issueItem.className = 'list-item';
 
+        const itemTextDiv = document.createElement('div');
+        itemTextDiv.className = 'item-text';
+
+        const itemTitle = document.createElement('div');
+        itemTitle.className = 'item-title';
+        itemTitle.textContent = issue.elementName;
+
+        const itemDescription = document.createElement('div');
+        itemDescription.className = 'item-description';
+
+        // Set the description text based on issue type
         if (issue.type === 'padding') {
-          issueDescription = `Padding Issue in "${issue.elementName}": Expected ${issue.expected}px ${issue.direction} padding, but found ${issue.spacing}px.`;
+          itemDescription.textContent = `Padding: expected ${issue.expected}px ${issue.direction}, found ${issue.spacing}px.`;
         } else if (issue.type === 'spacing') {
-          issueDescription = `Spacing Issue in "${issue.elementName}": Expected ${issue.expected}px ${issue.direction} spacing, but found ${issue.spacing}px.`;
+          itemDescription.textContent = `Spacing: expected ${issue.expected}px ${issue.direction}, found ${issue.spacing}px.`;
         } else if (issue.type === 'color-token') {
-          issueDescription = `Color Token Issue in "${issue.elementName}": Expected "${issue.expected}" for ${issue.property}, but found "${issue.actual}".`;
+          itemDescription.textContent = `Color token for ${issue.property}: expected "${issue.expected}", found "${issue.actual}".`;
         } else if (issue.type === 'font-token') {
-          issueDescription = `Font Token Issue in "${issue.elementName}": Expected "${issue.expected}", but found "${issue.actual}".`;
-        } else if (issue.type === 'styling') {  // Handle styling issue type
-          issueDescription = `Styling Issue in "${issue.elementName}": Expected "${issue.expected}", but found "${issue.actual}".`;
+          itemDescription.textContent = `Font token: expected "${issue.expected}", found "${issue.actual}".`;
+        } else if (issue.type === 'styling') {
+          itemDescription.textContent = `Styling: expected "${issue.expected}", found "${issue.actual}".`;
         }
 
-        const issueItem = document.createElement('div');
-        issueItem.className = 'issue-item';
-        issueItem.textContent = issueDescription;
+        itemTextDiv.appendChild(itemTitle);
+        itemTextDiv.appendChild(itemDescription);
 
-        // Add hover events to send messages to the plugin with the correct frameId
+        const tagSpan = document.createElement('span');
+        tagSpan.className = 'tag';
+        tagSpan.textContent = issue.type;
+
+        issueItem.appendChild(itemTextDiv);
+        issueItem.appendChild(tagSpan);
+
+        // Add hover events to send messages to the plugin
         issueItem.addEventListener('mouseenter', () => {
-          parent.postMessage({ pluginMessage: { type: 'highlight-frame', frameId: issue.element.id } }, '*');
+          parent.postMessage({ 
+            pluginMessage: { 
+              type: 'highlight-frame', 
+              frameId: issue.element.id 
+            }
+          }, '*');
         });
 
         issueItem.addEventListener('mouseleave', () => {
-          parent.postMessage({ pluginMessage: { type: 'reset-highlight', frameId: issue.element.id } }, '*');
+          parent.postMessage({ 
+            pluginMessage: { 
+              type: 'reset-highlight', 
+              frameId: issue.element.id 
+            }
+          }, '*');
         });
 
         issuesContainer.appendChild(issueItem);
       });
     }
-
-  };
-</script>
-
-</body>
+    // NAVIGATION
+    document.querySelectorAll('.step').forEach(item => {
+      item.addEventListener('click', function() {
+        // Remove active class from all nav items and content sections
+        document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+        
+        // Add active class to clicked item
+        this.classList.add('active');
+        
+        // Show corresponding content section
+        const target = this.getAttribute('data-target');
+        document.getElementById(target).classList.add('active');
+        
+        // If accessibility section is activated, show landmarks by default
+        if (target === 'accessibility') {
+          document.querySelector('#accessibility .tab[data-type="landmarks"]').click();
+        }
+      });
+    });
+  </script>
+  </body>
 </html>
